@@ -5,8 +5,11 @@ var context = canvas.getContext("2d");
 context.strokeStyle = "grey";
 const TILESIZE = 15;
 const ROWNUM = canvas.width / TILESIZE
+const SPAWNERPOSITIONS = [8, 10, 20, 25, 30, 33]
+const SPAWNERS = []
 const gameMap = [];
 let snek1 = null
+let snek2 = null
 
 
 //     ***************   TILE class START  ***************
@@ -61,28 +64,45 @@ class Tile {
   }
 }
 
+class SpawnerTile extends Tile {
+  constructor(x, y, fillColor) {
+    super(x, y, fillColor)
+  }
+
+  clearCell() {
+    this.occupied = 0
+    context.fillStyle = 'black';
+    context.fillRect(this.x * TILESIZE, this.y * TILESIZE, TILESIZE, TILESIZE);
+  }
+
+  spawn(generator) {
+    let randInt = Math.floor(Math.random() * Math.floor(2));
+    if (randInt === 1) {
+      generator.spawnRandom(this.x, this.y)
+    }
+  }
+}
+
 //     ***************   SNEK class START  ***************
 
 class Snek {
-  constructor(x, y, fillColor) {
-    this.length = 3
+  constructor(x, y, fillColor, actionKeys) {
+    this.length = 4
     this.positions = []
     for (let i=0; i < this.length; i++) {
       this.positions.push({x: x, y: y - i})
     }
     this.fillColor = fillColor;
-    this.actionKeys = 'wasd'
-    this.direction = 'w'
+    this.actionKeys = actionKeys
+    this.direction = actionKeys[0]
     this.move()
   }
 
   move() {
     this.positions.unshift(Object.assign({}, this.positions[0]))
     let tail = this.positions[this.length]
-    // console.log(this.positions)
     let head = this.positions[0]
     gameMap[tail.x][tail.y].clearCell()
-    console.log(this.positions.splice(this.length, 1))
     switch(this.direction) {
       case this.actionKeys[0]:
         head.y -= 1;
@@ -99,55 +119,162 @@ class Snek {
       default:
         console.log('move error');
     }
-    this.validatePos()
+    this.validatePos(head)
     gameMap[head.x][head.y].occupyCell(2, this.fillColor)
   }
 
-  validatePos() {
-    if (this.x < 0) {
-      this.x = ROWNUM - 1
-    } else if (this.y < 0) {
-      this.y = ROWNUM - 1
-    } else if (this.x === ROWNUM - 1) {
-      this.x = 0
-    } else if (this.y === ROWNUM - 1) {
-      this.y = 0
+  validatePos(head) {
+    if (head.x < 0) {
+      head.x = ROWNUM - 1
+    } else if (head.y < 0) {
+      head.y = ROWNUM - 1
+    } else if (head.x === ROWNUM) {
+      head.x = 0
+    } else if (head.y === ROWNUM) {
+      head.y = 0
+    }
+  }
+
+  validateDirection(key) {
+    if (this.actionKeys.includes(key)) {
+
+      switch(this.direction) {
+        case this.actionKeys[0]:
+        if (key !== this.actionKeys[2]) {
+          this.direction = key;
+          }
+          break;
+          case this.actionKeys[1]:
+          if (key !== this.actionKeys[3]) {
+            this.direction = key;
+          }
+          break;
+          case this.actionKeys[2]:
+          if (key !== this.actionKeys[0]) {
+            this.direction = key;
+          }
+          break;
+        case this.actionKeys[3]:
+        if (key !== this.actionKeys[1]) {
+            this.direction = key;
+          }
+          break;
+        default:
+          console.log('move error');
+      }
     }
   }
 }
 
+//     ***************   SNEK class END  ***************
 
-//     ***************   SNEK class START  ***************
+//     ***************   GENERATOR class START  ***************
+
+class Generators {
+  constructor (map) {
+    this.map = map
+  }
+
+  spawnRandom(x, y) {
+    let randInt = Math.floor(Math.random() * Math.floor(4));
+    switch(randInt) {
+      case 0:
+        this.blinker(x, y)
+        break;
+      case 1:
+        this.glider(x, y)
+        break;
+      case 2:
+        this.glider2(x, y)
+        break;
+      case 3:
+        this.pentomino(x, y)
+        break;
+    }
+
+  }
+
+  blinker(x, y) {
+    this.map[x][y].occupyCell(1, 'blue' );
+    this.map[x + 1][y].occupyCell(1, 'blue' );
+    this.map[x + 2][y].occupyCell(1, 'blue' );
+  }
+
+  glider(x, y) {
+    this.map[x][y].occupyCell(1, 'blue' );
+    this.map[x + 1][y].occupyCell(1, 'blue' );
+    this.map[x + 2][y].occupyCell(1, 'blue' );
+    this.map[x + 2][y + 1].occupyCell(1, 'blue' );
+    this.map[x + 1][y + 2].occupyCell(1, 'blue' );
+  }
+
+  glider2(x, y) {
+    this.map[x][y].occupyCell(1, 'blue' );
+    this.map[x - 1][y].occupyCell(1, 'blue' );
+    this.map[x - 2][y].occupyCell(1, 'blue' );
+    this.map[x - 2][y - 1].occupyCell(1, 'blue' );
+    this.map[x - 1][y - 2].occupyCell(1, 'blue' );
+  }
+
+  pentomino(x, y) {
+    this.map[x][y].occupyCell(1, 'blue' );
+    this.map[x - 1][y].occupyCell(1, 'blue' );
+    this.map[x][y - 1].occupyCell(1, 'blue' );
+    this.map[x][y + 1].occupyCell(1, 'blue' );
+    this.map[x + 1][y + 1].occupyCell(1, 'blue' );
+
+  }
+}
+
+//     ***************   GENERATOR class END  ***************
+
 
 function drawMap(gameMap) {
   for (let x = 0; x < ROWNUM; x++) {
     gameMap.push([])
     for (let y = 0; y < ROWNUM; y++) {
-      context.strokeRect(x * TILESIZE, y * TILESIZE, TILESIZE, TILESIZE);
-      gameMap[x][y] = new Tile(x, y, 'white')
+      if (SPAWNERPOSITIONS.includes(y)) {
+        if (x === y ) {
+          gameMap[x][y] = new SpawnerTile(x, y, 'white')
+          SPAWNERS.push(gameMap[x][y])
+        } else {
+          gameMap[x][y] = new Tile(x, y, 'white')
+        }
+      } else {
+        gameMap[x][y] = new Tile(x, y, 'white')
+      }
+      gameMap[x][y].clearCell()
     }
   }
 }
 
-function setup () {
-  drawMap(gameMap);
-  snek1 = new Snek(15, 15, 'green')
-  document.addEventListener('keypress', function(e) {
-    snek1.direction = e.key
-  })
-  gameMap[5][8].occupyCell(1, 'blue')
-  gameMap[6][8].occupyCell(1, 'blue')
-  gameMap[7][8].occupyCell(1, 'blue')
-  gameMap[7][7].occupyCell(1, 'blue')
-  gameMap[6][6].occupyCell(1, 'blue')
 
-  gameMap[15][8].occupyCell(1, 'blue')
-  gameMap[16][8].occupyCell(1, 'blue')
-  gameMap[17][8].occupyCell(1, 'blue')
+function setup () {
+  const generator = new Generators(gameMap);
+  drawMap(gameMap);
+  snek1 = new Snek(0, 39, 'green', 'wasd')
+  snek2 = new Snek(39, 39, 'red', 'oklé')
+  document.addEventListener('keypress', function(e) {
+    snek1.validateDirection(e.key)
+    snek2.validateDirection(e.key)
+  })
+  // generator.blinker(20, 20)
+  // generator.glider(25, 25)
+  // generator.glider2(10, 25)
+  // generator.pentomino(10, 30)
+  // generator.pentomino(30, 10)
+
   setInterval(function() {
     snek1.move()
+    snek2.move()
     redrawMap(gameMap)
   }, 500)
+  setInterval(function() {
+    SPAWNERS.forEach(function(spawner) {
+      spawner.spawn(generator)
+    })
+  }, 1000)
+  console.log(SPAWNERS  )
 }
 
 function redrawMap (map) {
