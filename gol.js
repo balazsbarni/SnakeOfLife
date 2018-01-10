@@ -50,7 +50,7 @@ class Tile {
       for (let j = -1; j < 2; j++) {
         let a = this.x + i;
         let b = this.y + j;
-        if (a >= 0 && b >= 0 && a < ROWNUM && b < ROWNUM) {
+        if (a > -1 && b > -1 && a < ROWNUM && b < ROWNUM) {
           if (map[a][b].occupied === 1) {
             count++
           }
@@ -65,46 +65,58 @@ class Tile {
 
 class Snek {
   constructor(x, y, fillColor) {
-    this.x = x;
-    this.y = y;
+    this.length = 3
+    this.positions = []
+    for (let i=0; i < this.length; i++) {
+      this.positions.push({x: x - i, y: y})
+    }
     this.fillColor = fillColor;
     this.actionKeys = 'wasd'
-    this.occupyTile(this.x, this.y)
+    this.direction = 'w'
+    this.move()
   }
 
-    move(key) {
-      this.clearTile();
-      switch(key) {
-        case this.actionKeys[0]:
-          this.y -= 1;
-          break;
-        case this.actionKeys[1]:
-          this.x -= 1;
-          break;
-        case this.actionKeys[2]:
-          this.y +=1;
-          break;
-        case this.actionKeys[3]:
-          this.x += 1;
-          break;
-        default:
-          console.log('move error');
-      }
-      this.occupyTile(this.x, this.y);
+  move() {
+    this.positions.unshift(Object.assign({}, this.positions[0]))  
+    let tail = this.positions[this.length - 1]
+    console.log('a')
+    console.log(this.positions)
+    let head = this.positions[0]    
+    gameMap[tail.x][tail.y].clearCell()
+    this.positions.splice(this.length - 1, 1)
+    switch(this.direction) {
+      case this.actionKeys[0]:
+        head.y -= 1;
+        break;
+      case this.actionKeys[1]:
+        head.x -= 1;
+        break;
+      case this.actionKeys[2]:
+        head.y +=1;
+        break;
+      case this.actionKeys[3]:
+        head.x += 1;
+        break;
+      default:
+        console.log('move error');
     }
-
-    occupyTile(x, y) {
-      gameMap[this.x][this.y].fillColor = this.fillColor
-      gameMap[this.x][this.y].fillCell()
-    }
-
-    clearTile() {
-      gameMap[this.x][this.y].fillColor = 'white'
-      gameMap[this.x][this.y].fillCell()
-
-    }
-
+    this.validatePos()
+    gameMap[head.x][head.y].occupyCell(2, this.fillColor)
   }
+  
+  validatePos() {
+    if (this.x < 0) {
+      this.x = ROWNUM - 1
+    } else if (this.y < 0) {
+      this.y = ROWNUM - 1
+    } else if (this.x === ROWNUM - 1) {
+      this.x = 0
+    } else if (this.y === ROWNUM - 1) {
+      this.y = 0
+    }
+  }
+}
+
 
 //     ***************   SNEK class START  ***************
 
@@ -122,16 +134,21 @@ function setup () {
   drawMap(gameMap);
   snek1 = new Snek(15, 15, 'green')
   document.addEventListener('keypress', function(e) {
-    snek1.move(e.key)
+    snek1.direction = e.key
   })
   gameMap[5][8].occupyCell(1, 'blue')
   gameMap[6][8].occupyCell(1, 'blue')
   gameMap[7][8].occupyCell(1, 'blue')
   gameMap[7][7].occupyCell(1, 'blue')
   gameMap[6][6].occupyCell(1, 'blue')
-  setInterval(() => redrawMap(gameMap), 50)
-  // console.log(gameMap[3][8].getCount(gameMap))
 
+  gameMap[15][8].occupyCell(1, 'blue')
+  gameMap[16][8].occupyCell(1, 'blue')
+  gameMap[17][8].occupyCell(1, 'blue')
+  setInterval(function() {
+    snek1.move()
+    redrawMap(gameMap)
+  }, 500)
 }
 
 function redrawMap (map) {
@@ -139,13 +156,19 @@ function redrawMap (map) {
   context.clearRect(0, 0, canvas.width, canvas.height);
   gameMap.forEach(function(row, x) {
     row.forEach(function(col, y) {
-      if (map[x][y].neighbourCount < 2) {
+      if (map[x][y].occupied === 2) {
+        if (map[x][y].neighbourCount === 2) {
+          console.log('game over bitch')
+        }
+        map[x][y].fillCell()
+      }
+      else if (map[x][y].neighbourCount < 2) {
         map[x][y].clearCell()
       } else if (map[x][y].neighbourCount > 3) {
         map[x][y].clearCell()
-      } else if (map[x][y].occupied !== 1 && map[x][y].neighbourCount === 3) {
+      } else if (map[x][y].occupied === 0 && map[x][y].neighbourCount === 3) {
         map[x][y].occupyCell(1, 'blue' );
-      } else  if (map[x][y].occupied === 1){
+      } else if (map[x][y].occupied !== 0){
         map[x][y].fillCell();
       }
     })
@@ -160,25 +183,8 @@ function countNeighbours(map) {
       } else if (map[x][y].occupied !== 0) {
         map[x][y].neighbourCount = map[x][y].getCount(map) - 1
       }
-      /* const count = map[x][y].getCount(map);
-      if (count < 2) {
-        map[x][y].clearCell()
-      } else if (count > 3) {
-        map[x][y].clearCell()
-      } else if (count === 3) {
-        map[x][y].occupyCell(1, 'blue');
-      }
-      console.log(count)
-      */
     })
   }) 
 }
 
 setup();
-
-//drawMap(gameMap);
-// gameMap[0][1].occupyCell(1, 'blue')
-// gameMap[0][2].occupyCell(1, 'blue')
-// gameMap[0][3].occupyCell(1, 'blue')
-//countNeighbours(gameMap)
-//context.clearRect(0, 0, canvas.width, canvas.height);
