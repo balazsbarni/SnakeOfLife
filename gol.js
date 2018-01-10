@@ -19,7 +19,7 @@ class Tile {
     this.occupied = 0;
     this.neighbourCount = 0
   }
-  
+
   getCords() {
     return {
       x: this.x * TILESIZE,
@@ -37,13 +37,13 @@ class Tile {
     context.strokeStyle = 'grey';
     context.strokeRect(this.x * TILESIZE, this.y * TILESIZE, TILESIZE, TILESIZE);
   }
-  
+
   occupyCell(what, color) {
     this.occupied = what;
     this.fillColor = color;
     this.fillCell()
   }
-  
+
   getCount(map) {
     let count = 0;
     for (let i = -1; i < 2; i++) {
@@ -68,7 +68,7 @@ class Snek {
     this.length = 3
     this.positions = []
     for (let i=0; i < this.length; i++) {
-      this.positions.push({x: x - i, y: y})
+      this.positions.push({x: x, y: y - i})
     }
     this.fillColor = fillColor;
     this.actionKeys = 'wasd'
@@ -77,13 +77,12 @@ class Snek {
   }
 
   move() {
-    this.positions.unshift(Object.assign({}, this.positions[0]))  
-    let tail = this.positions[this.length - 1]
-    console.log('a')
-    console.log(this.positions)
-    let head = this.positions[0]    
+    this.positions.unshift(Object.assign({}, this.positions[0]))
+    let tail = this.positions[this.length]
+    // console.log(this.positions)
+    let head = this.positions[0]
     gameMap[tail.x][tail.y].clearCell()
-    this.positions.splice(this.length - 1, 1)
+    console.log(this.positions.splice(this.length, 1))
     switch(this.direction) {
       case this.actionKeys[0]:
         head.y -= 1;
@@ -103,7 +102,7 @@ class Snek {
     this.validatePos()
     gameMap[head.x][head.y].occupyCell(2, this.fillColor)
   }
-  
+
   validatePos() {
     if (this.x < 0) {
       this.x = ROWNUM - 1
@@ -184,7 +183,7 @@ function countNeighbours(map) {
         map[x][y].neighbourCount = map[x][y].getCount(map) - 1
       }
     })
-  }) 
+  })
 }
 
 setup();
