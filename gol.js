@@ -49,19 +49,28 @@ function fillCell(x, y) {
   gameMap[x][y].occupied = 1;
 }
 
-function getCount(x, y) {
+function getCount(map, x, y) {
   let count = 0;
   for (i = -1; i < 2; i++) {
     for (j = -1; j < 2; j++) {
       let a = x + i;
       let b = y + j;
-      console.log(gameMap[a][b])
-      fillCell(a, b);
+      if (map[a][b].occupied === 1) {
+        count++
+      }
     }
+  }
+  return count - 1;
+}
+
+function live(x, y) {
+  if (getCount(gameMap, x, y) < 2) {
+    gameMap[x][y].occupied = 0;
+    gameMap[x][y].fillColor = 'white';
   }
 }
 
+
 setup();
-fillCell(0,0)
-console.log(gameMap[0][0]);
-console.log(getCount(gameMap[5][5].x, gameMap[5][5].y));
+fillCell(5,5)
+live(5, 5)
