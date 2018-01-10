@@ -127,7 +127,9 @@ function setup () {
   gameMap[5][8].occupyCell(1, 'blue')
   gameMap[6][8].occupyCell(1, 'blue')
   gameMap[7][8].occupyCell(1, 'blue')
-  setInterval(() => redrawMap(gameMap), 500)
+  gameMap[7][7].occupyCell(1, 'blue')
+  gameMap[6][6].occupyCell(1, 'blue')
+  setInterval(() => redrawMap(gameMap), 50)
   // console.log(gameMap[3][8].getCount(gameMap))
 
 }
@@ -141,8 +143,10 @@ function redrawMap (map) {
         map[x][y].clearCell()
       } else if (map[x][y].neighbourCount > 3) {
         map[x][y].clearCell()
-      } else if (map[x][y].neighbourCount === 3) {
+      } else if (map[x][y].occupied !== 1 && map[x][y].neighbourCount === 3) {
         map[x][y].occupyCell(1, 'blue' );
+      } else  if (map[x][y].occupied === 1){
+        map[x][y].fillCell();
       }
     })
   })
@@ -151,8 +155,11 @@ function redrawMap (map) {
 function countNeighbours(map) {
   gameMap.forEach(function(row, x) {
     row.forEach(function(col, y) {
-      map[x][y].neighbourCount = map[x][y].getCount(map)
-      console.log(map[x][y].neighbourCount)
+      if (map[x][y].occupied === 0) {
+        map[x][y].neighbourCount = map[x][y].getCount(map)
+      } else if (map[x][y].occupied !== 0) {
+        map[x][y].neighbourCount = map[x][y].getCount(map) - 1
+      }
       /* const count = map[x][y].getCount(map);
       if (count < 2) {
         map[x][y].clearCell()
@@ -169,6 +176,9 @@ function countNeighbours(map) {
 
 setup();
 
-
-
-
+//drawMap(gameMap);
+// gameMap[0][1].occupyCell(1, 'blue')
+// gameMap[0][2].occupyCell(1, 'blue')
+// gameMap[0][3].occupyCell(1, 'blue')
+//countNeighbours(gameMap)
+//context.clearRect(0, 0, canvas.width, canvas.height);
