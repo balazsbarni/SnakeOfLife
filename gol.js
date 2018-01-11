@@ -195,7 +195,7 @@ class Generators {
   }
 
   spawnRandom(x, y) {
-    let randInt = Math.floor(Math.random() * Math.floor(4));
+    let randInt = Math.floor(Math.random() * Math.floor(5));
     switch(randInt) {
       case 0:
         this.blinker(x, y)
@@ -208,6 +208,9 @@ class Generators {
         break;
       case 3:
         this.pentomino(x, y)
+        break;
+      case 3:
+        this.toad(x, y)
         break;
     }
 
@@ -241,7 +244,16 @@ class Generators {
     this.map[x][y - 1].occupyCell(1, 'blue' );
     this.map[x][y + 1].occupyCell(1, 'blue' );
     this.map[x + 1][y + 1].occupyCell(1, 'blue' );
+  }
 
+  toad(x, y) {
+    this.map[x][y].occupyCell(1, 'blue' );
+    this.map[x][y + 1].occupyCell(1, 'blue' );
+    this.map[x + 1][y + 2].occupyCell(1, 'blue' );
+    this.map[x + 2][y - 1].occupyCell(1, 'blue' );
+    this.map[x + 3][y + 1].occupyCell(1, 'blue' );
+    this.map[x + 3][y].occupyCell(1, 'blue' );
+    this.map[x + 3][y + 1].occupyCell(1, 'blue' );
   }
 }
 
@@ -285,7 +297,7 @@ function setup () {
     snek1.getDirection(e.key)
     snek2.getDirection(e.key)
   })
-   generator.blinker(2, 30)
+  initialLife(generator);
   // generator.glider(25, 25)
   // generator.glider2(10, 25)
   generator.pentomino(10, 30)
@@ -294,7 +306,7 @@ function setup () {
     SPAWNERS.forEach(function(spawner) {
       spawner.spawn(generator)
     })
-  }, 2000)
+  }, 4000)
 
   drawInterval = setInterval(function() {
     snek1.move()
@@ -302,6 +314,42 @@ function setup () {
     redrawMap(gameMap)
   }, 300)
 
+}
+
+function initialLife(generator) {
+  generator.toad(10, 29)
+  generator.toad(6, 20)
+  generator.toad(2, 35)
+  generator.blinker(10, 35)
+  generator.blinker(15, 35)
+  generator.blinker(20, 35)
+  generator.blinker(25, 35)
+  generator.blinker(30, 35)
+  generator.blinker(2, 30)
+  generator.blinker(10, 30)
+  generator.blinker(15, 30)
+  generator.blinker(20, 30)
+  generator.toad(25, 30)
+  generator.blinker(30, 30)
+  generator.blinker(2, 20)
+  generator.blinker(10, 20)
+  generator.blinker(15, 20)
+  generator.blinker(20, 20)
+  generator.blinker(25, 20)
+  generator.blinker(25, 25)
+  generator.toad(30, 20)
+  generator.blinker(2, 10)
+  generator.toad(10, 10)
+  generator.blinker(15, 10)
+  generator.blinker(20, 10)
+  generator.blinker(25, 10)
+  generator.toad(30, 10)
+  generator.toad(2, 5)
+  generator.blinker(10, 5)
+  generator.blinker(15, 5)
+  generator.blinker(20, 5)
+  generator.blinker(25, 5)
+  generator.blinker(30, 5)
 }
 
 function redrawMap (map) {
@@ -331,6 +379,11 @@ function redrawMap (map) {
       }
     })
   })
+}
+
+function getRandomColor() {
+  var colors = ['#c2f0f0', '#ff33cc', '#ffb3b3', '#ffff00', '#aaff00', '#00cc00', '#0066ff', '#9966ff'];
+  return colors[Math.floor(Math.random() * 8)];
 }
 
 function countNeighbours(map) {
