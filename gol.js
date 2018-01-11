@@ -315,7 +315,7 @@ function redrawMap (map) {
         }
         map[x][y].fillCell()
       } else if (map[x][y].occupied === 3) {
-          if (map[x][y].neighbourCount === 3) {
+          if (map[x][y].neighbourCount === 2) {
             gameOver('green')
           }
           map[x][y].fillCell()
