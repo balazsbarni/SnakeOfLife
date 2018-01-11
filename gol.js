@@ -49,7 +49,7 @@ class Tile {
     context.fillStyle = this.fillColor;
     context.fillRect(this.x * TILESIZE, this.y * TILESIZE, TILESIZE, TILESIZE);
   }
-  
+
   clearCell() {
     this.occupied = 0;
     if (this.x === applePosition.x && this.y === applePosition.y) {
@@ -97,7 +97,7 @@ class SpawnerTile extends Tile {
       context.fillRect(this.x * TILESIZE, this.y * TILESIZE, TILESIZE, TILESIZE);
     }
   }
-  
+
   spawn(generator) {
     let randInt = Math.floor(Math.random() * Math.floor(2));
     if (randInt === 1) {
@@ -305,7 +305,7 @@ function drawMap(gameMap) {
         }
       })
       if (spawn === false) {
-        gameMap[x][y] = new Tile(x, y, 'white')        
+        gameMap[x][y] = new Tile(x, y, 'white')
       }
       gameMap[x][y].clearCell()
     }
@@ -377,7 +377,7 @@ function redrawMap (map) {
         map[x][y].fillCell()
       }
       else if (map[x][y].neighbourCount < 2) {
-        map[x][y].clearCell() 
+        map[x][y].clearCell()
       } else if (map[x][y].neighbourCount > 3) {
         map[x][y].clearCell()
       } else if (map[x][y].occupied === 0 && map[x][y].neighbourCount === 3) {
@@ -416,12 +416,13 @@ function gameOver(color, score) {
   if (score === -1) {
     CANVASCONTAINER.innerHTML = '<h1>The ' + color + ' Snek is the WORST Snek EVER!</h1>'
   } else {
-    CANVASCONTAINER.innerHTML = '<h1>The ' + color + ' Snek is the BEST Snek EVER!</h1>'    
+    CANVASCONTAINER.innerHTML = '<h1>The ' + color + ' Snek is the BEST Snek EVER!</h1>'
   }
   CANVASCONTAINER.innerHTML += '<h1>Score of Shame:</h1>'
   CANVASCONTAINER.innerHTML += "<h1 style='color: green'>Green: " + loseCount.player1 + "</h1>"
   CANVASCONTAINER.innerHTML += "<h1 style='color: red'>Red: " + loseCount.player2 + "</h1>"
   CANVASCONTAINER.innerHTML += "<button onclick='setup()'>Play again</button>"
+  document.querySelector('button').focus()
   clearInterval(spawnInterval)
   clearInterval(drawInterval)
 }
