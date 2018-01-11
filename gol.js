@@ -129,7 +129,11 @@ class Snek {
     if (gameMap[head.x][head.y].occupied !== 0) {
       gameOver(this.fillColor)
     }
-    gameMap[head.x][head.y].occupyCell(2, this.fillColor)
+    if (this.fillColor ==='red') {
+      gameMap[head.x][head.y].occupyCell(2, this.fillColor)
+    } else if (this.fillColor === 'green'){
+      gameMap[head.x][head.y].occupyCell(3, this.fillColor)
+    }
   }
 
   validatePos(head) {
@@ -275,7 +279,7 @@ function setup () {
     snek1.validateDirection(e.key)
     snek2.validateDirection(e.key)
   })
-  // generator.blinker(20, 20)
+   generator.blinker(2, 30)
   // generator.glider(25, 25)
   // generator.glider2(10, 25)
   // generator.pentomino(10, 30)
@@ -284,7 +288,7 @@ function setup () {
     SPAWNERS.forEach(function(spawner) {
       spawner.spawn(generator)
     })
-  }, 1000)
+  }, 100000)
 
   drawInterval = setInterval(function() {
     snek1.move()
@@ -301,10 +305,15 @@ function redrawMap (map) {
     row.forEach(function(col, y) {
       if (map[x][y].occupied === 2) {
         if (map[x][y].neighbourCount === 2) {
-          console.log('game over bitch')
+          gameOver('red')
         }
         map[x][y].fillCell()
-      }
+      } else if (map[x][y].occupied === 3) {
+          if (map[x][y].neighbourCount === 3) {
+            gameOver('green')
+          }
+          map[x][y].fillCell()
+      } 
       else if (map[x][y].neighbourCount < 2) {
         map[x][y].clearCell()
       } else if (map[x][y].neighbourCount > 3) {
