@@ -1,15 +1,17 @@
 'use strict';
 
-var canvas = document.querySelector("canvas");
-var context = canvas.getContext("2d");
-context.strokeStyle = "grey";
+const CANVASCONTAINER = document.getElementById('canvas')
+var context = null
+var canvas = null
 const TILESIZE = 15;
-const ROWNUM = canvas.width / TILESIZE
+var ROWNUM = null
 const SPAWNERPOSITIONS = [8, 10, 20, 25, 30, 33]
 const SPAWNERS = []
 const gameMap = [];
 let snek1 = null
 let snek2 = null
+let spawnInterval = null
+let drawInterval = null
 
 
 //     ***************   TILE class START  ***************
@@ -120,6 +122,9 @@ class Snek {
         console.log('move error');
     }
     this.validatePos(head)
+    if (gameMap[head.x][head.y].occupied !== 0) {
+      gameOver(this.fillColor)
+    }
     gameMap[head.x][head.y].occupyCell(2, this.fillColor)
   }
 
@@ -229,6 +234,13 @@ class Generators {
 //     ***************   GENERATOR class END  ***************
 
 
+function createCanvas() {
+  CANVASCONTAINER.innerHTML = '<canvas class="sol" width="600" height="600"></canvas>'
+  canvas = document.querySelector('canvas')
+  context = canvas.getContext("2d");
+  ROWNUM = canvas.width / TILESIZE
+}
+
 function drawMap(gameMap) {
   for (let x = 0; x < ROWNUM; x++) {
     gameMap.push([])
@@ -250,10 +262,11 @@ function drawMap(gameMap) {
 
 
 function setup () {
+  createCanvas()
   const generator = new Generators(gameMap);
   drawMap(gameMap);
   snek1 = new Snek(0, 39, 'green', 'wasd')
-  snek2 = new Snek(39, 39, 'red', 'oklé')
+  snek2 = new Snek(39, 39, 'red', 'ijkl')
   document.addEventListener('keypress', function(e) {
     snek1.validateDirection(e.key)
     snek2.validateDirection(e.key)
@@ -263,18 +276,18 @@ function setup () {
   // generator.glider2(10, 25)
   // generator.pentomino(10, 30)
   // generator.pentomino(30, 10)
-
-  setInterval(function() {
-    snek1.move()
-    snek2.move()
-    redrawMap(gameMap)
-  }, 500)
-  setInterval(function() {
+  spawnInterval = setInterval(function() {
     SPAWNERS.forEach(function(spawner) {
       spawner.spawn(generator)
     })
   }, 1000)
-  console.log(SPAWNERS  )
+
+  drawInterval = setInterval(function() {
+    snek1.move()
+    snek2.move()
+    redrawMap(gameMap)
+  }, 500)
+
 }
 
 function redrawMap (map) {
@@ -311,6 +324,14 @@ function countNeighbours(map) {
       }
     })
   })
+}
+
+function gameOver(color) {
+  canvas.remove()
+  CANVASCONTAINER.innerHTML = '<h1>The ' + color + ' Snek is the worst Snek EVER!</h1>'
+  CANVASCONTAINER.innerHTML += "<button onclick='setup()'>Play again</button>"
+  clearInterval(spawnInterval)
+  clearInterval(drawInterval)
 }
 
 setup();
