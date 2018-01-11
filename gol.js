@@ -32,7 +32,8 @@ class Tile {
   constructor(x, y, fillColor) {
     this.x = x;
     this.y = y;
-    this.fillColor = fillColor;
+    this.default = fillColor
+    this.fillColor = null
     this.occupied = 0;
     this.neighbourCount = 0
   }
@@ -54,8 +55,8 @@ class Tile {
     if (this.x === applePosition.x && this.y === applePosition.y) {
       drawApple()
     } else {
-      context.fillStyle = 'white';
-      context.fillRect(this.x * TILESIZE, this.y * TILESIZE, TILESIZE, TILESIZE);
+      context.strokeStyle = this.default;
+      context.strokeRect(this.x * TILESIZE, this.y * TILESIZE, TILESIZE, TILESIZE);
     }
   }
 
@@ -92,7 +93,7 @@ class SpawnerTile extends Tile {
     if (this.x === applePosition.x && this.y === applePosition.y) {
       drawApple()
     } else {
-      context.fillStyle = 'purple';
+      context.fillStyle = this.default;
       context.fillRect(this.x * TILESIZE, this.y * TILESIZE, TILESIZE, TILESIZE);
     }
   }
@@ -298,7 +299,7 @@ function drawMap(gameMap) {
       let spawn = false
       SPAWNERPOSITIONS.forEach(function(spawner) {
         if (x === spawner.x && y === spawner.y) {
-          gameMap[x][y] = new SpawnerTile(x, y, 'white')
+          gameMap[x][y] = new SpawnerTile(x, y, 'purple')
           SPAWNERS.push(gameMap[x][y])
           spawn = true
         }
@@ -338,7 +339,7 @@ function setup () {
     snek1.move()
     snek2.move()
     redrawMap(gameMap)
-  }, 200)
+  }, 250)
 
 }
 
@@ -376,7 +377,7 @@ function redrawMap (map) {
         map[x][y].fillCell()
       }
       else if (map[x][y].neighbourCount < 2) {
-        map[x][y].clearCell()
+        map[x][y].clearCell() 
       } else if (map[x][y].neighbourCount > 3) {
         map[x][y].clearCell()
       } else if (map[x][y].occupied === 0 && map[x][y].neighbourCount === 3) {
@@ -426,7 +427,7 @@ function gameOver(color, score) {
 }
 
 function drawApple() {
-  context.fillStyle = 'yellow';
+  context.fillStyle = 'orange';
   context.fillRect(applePosition.x * TILESIZE, applePosition.y * TILESIZE, TILESIZE, TILESIZE);
 }
 
