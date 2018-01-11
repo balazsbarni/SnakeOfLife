@@ -12,6 +12,10 @@ let snek1 = null
 let snek2 = null
 let spawnInterval = null
 let drawInterval = null
+let loseCount = {
+  player1: 0,
+  player2: 0
+}
 
 
 //     ***************   TILE class START  ***************
@@ -328,10 +332,17 @@ function countNeighbours(map) {
 
 function gameOver(color) {
   canvas.remove()
+  if (color === 'green') {
+    loseCount.player1--
+  } else {
+    loseCount.player2--
+  }
   CANVASCONTAINER.innerHTML = '<h1>The ' + color + ' Snek is the worst Snek EVER!</h1>'
+  CANVASCONTAINER.innerHTML += '<h1>Score of Shame:</h1>'
+  CANVASCONTAINER.innerHTML += "<h2 style='color: green'>Green: " + loseCount.player1 + "</h2>"
+  CANVASCONTAINER.innerHTML += "<h2 style='color: red'>Red: " + loseCount.player2 + "</h2>"
   CANVASCONTAINER.innerHTML += "<button onclick='setup()'>Play again</button>"
   clearInterval(spawnInterval)
   clearInterval(drawInterval)
 }
-
 setup();
