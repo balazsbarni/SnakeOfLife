@@ -339,7 +339,7 @@ function setup () {
     snek1.move()
     snek2.move()
     redrawMap(gameMap)
-  }, 250)
+  }, 200)
 
 }
 
