@@ -100,11 +100,13 @@ class Snek {
     }
     this.fillColor = fillColor;
     this.actionKeys = actionKeys
+    this.newDirection = actionKeys[0]
     this.direction = actionKeys[0]
     this.move()
   }
 
   move() {
+    this.validateDirection()
     this.positions.unshift(Object.assign({}, this.positions[0]))
     let tail = this.positions[this.length]
     let head = this.positions[0]
@@ -148,33 +150,37 @@ class Snek {
     }
   }
 
-  validateDirection(key) {
-    if (this.actionKeys.includes(key)) {
+  validateDirection() {
 
-      switch(this.direction) {
-        case this.actionKeys[0]:
-        if (key !== this.actionKeys[2]) {
-          this.direction = key;
-          }
-          break;
-          case this.actionKeys[1]:
-          if (key !== this.actionKeys[3]) {
-            this.direction = key;
-          }
-          break;
-          case this.actionKeys[2]:
-          if (key !== this.actionKeys[0]) {
-            this.direction = key;
-          }
-          break;
-        case this.actionKeys[3]:
-        if (key !== this.actionKeys[1]) {
-            this.direction = key;
-          }
-          break;
-        default:
-          console.log('move error');
-      }
+    switch(this.direction) {
+      case this.actionKeys[0]:
+      if (this.newDirection !== this.actionKeys[2]) {
+        this.direction = this.newDirection;
+        }
+        break;
+        case this.actionKeys[1]:
+        if (this.newDirection !== this.actionKeys[3]) {
+          this.direction = this.newDirection;
+        }
+        break;
+        case this.actionKeys[2]:
+        if (this.newDirection !== this.actionKeys[0]) {
+          this.direction = this.newDirection;
+        }
+        break;
+      case this.actionKeys[3]:
+      if (this.newDirection !== this.actionKeys[1]) {
+          this.direction = this.newDirection;
+        }
+        break;
+      default:
+        console.log('move error');
+    }
+  }
+
+  getDirection(key) {
+    if (this.actionKeys.includes(key)) {
+      this.newDirection = key
     }
   }
 }
@@ -276,25 +282,25 @@ function setup () {
   snek1 = new Snek(0, 39, 'green', 'wasd')
   snek2 = new Snek(39, 39, 'red', 'ijkl')
   document.addEventListener('keypress', function(e) {
-    snek1.validateDirection(e.key)
-    snek2.validateDirection(e.key)
+    snek1.getDirection(e.key)
+    snek2.getDirection(e.key)
   })
    generator.blinker(2, 30)
   // generator.glider(25, 25)
   // generator.glider2(10, 25)
-  // generator.pentomino(10, 30)
-  // generator.pentomino(30, 10)
+  generator.pentomino(10, 30)
+  generator.pentomino(30, 10)
   spawnInterval = setInterval(function() {
     SPAWNERS.forEach(function(spawner) {
       spawner.spawn(generator)
     })
-  }, 100000)
+  }, 2000)
 
   drawInterval = setInterval(function() {
     snek1.move()
     snek2.move()
     redrawMap(gameMap)
-  }, 500)
+  }, 300)
 
 }
 
@@ -313,7 +319,7 @@ function redrawMap (map) {
             gameOver('green')
           }
           map[x][y].fillCell()
-      } 
+      }
       else if (map[x][y].neighbourCount < 2) {
         map[x][y].clearCell()
       } else if (map[x][y].neighbourCount > 3) {
